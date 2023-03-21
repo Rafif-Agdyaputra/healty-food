@@ -1,7 +1,7 @@
-import {Button, IconButton, InputLabel, TextField} from "@mui/material";
+import {Alert, Button, IconButton, InputLabel, TextField} from "@mui/material";
 import "./style.scss";
 import {OurlyFoodTypo} from "../Assets";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -10,6 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isDisable, setIsDisable] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const userData = JSON.parse(localStorage.getItem('users')) || [];
+  const [showToast, setShowToast] = useState('');
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -21,8 +23,20 @@ const Login = () => {
     }
   }, [email, password]);
 
+  const handleSubmit = useCallback(() => {
+    const dataEmail = userData.users[0].email;
+    const dataPassword = userData.users[0].password;
+
+    if (dataEmail !== email || dataPassword !== password) {
+      setShowToast('Email dan/atau password salah!');
+    } else {
+      setShowToast('');
+    }
+  }, [email, password, userData.users]);
+
   return (
     <div className="App">
+      {showToast && <Alert severity="error">{showToast}</Alert>}
       <div className="LoginContainer">
         <img src={OurlyFoodTypo} alt="name-test" width="300px"/>
         <span className="sloganLabel">Masuk ke akun anda</span>
@@ -57,7 +71,7 @@ const Login = () => {
               type={showPassword ? 'text' : 'password'}
               variant="outlined"
               color="primary"
-              placeholder="Masukan email anda"
+              placeholder="Masukan kata sandi anda"
             >
             </TextField>
           </div>
@@ -69,6 +83,9 @@ const Login = () => {
               width: '150px'
             }}
             disabled={isDisable}
+            onClick={() => {
+              handleSubmit()
+            }}
           >
             Login
           </Button>
